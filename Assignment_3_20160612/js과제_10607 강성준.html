@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <title>JavaScript 과제</title>
+        <script type="text/javascript">
+            var height = prompt("당신의 키를 입력하세요!(Cm)","175");
+            var weight = prompt("당신의 몸무게를 입력하세요!(Kg)","75");
+            var height_M = height/100;
+            var bmi = weight/(height_M*height_M);
+            document.write("당신의 키 : ",height,"Cm","<br/>");
+            document.write("당신의 몸무게 : ",weight,"Kg","<br/>");
+            document.write("bmi지수 : ",bmi,"<br/>");
+            if(bmi<=16.86){
+                document.write("당신은 저체중입니다. 체중을 좀 찌우려고 노력하시면 더욱 건강한 삶이 될 것입니다!","<br/>");
+            }
+            else if(bmi>16.86 && bmi<=24.74){
+                document.write("당신은 정상입니다. 잘하고 계십니다. 쭉 유지하세요!","<br/>");
+            }
+            else if(bmi>24.74 & bmi<=25){
+                document.write("당신은 과체중입니다. 조금만 더 관리해서 정상에 들 수 있도록 하세요!","<br/>");
+            }
+            else if(bmi>25){
+                document.write("당신은 비만입니다. 식단 조절과 운동을 병행하여 살을 빼세요!","<br/>");
+            }
+        </script>
+    </head>
+    <body>
+    </body>
+</html>
