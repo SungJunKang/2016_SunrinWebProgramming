@@ -1,0 +1,205 @@
+<html>
+    <!-- 함수의 기능 및 함수 사용법 참고 (1)네이버 블로그 (2)구글-->
+<head>
+    <meta charset="utf-8">
+    <title>10607_강성준</title>
+    <style>
+        canvas {
+            border: 1px dotted red;
+            background-color: #fcff00;
+        }
+    </style>
+    <script>
+        var context;
+        var velocity;
+        var angle;
+        var ballV;
+        var ballVx;
+        var ballVy;
+        var ballX=10;
+        var ballY=250;
+        var ballRadius=10;
+        var score =0;
+        var limit = 10; // 3. 발사횟수 제한용 변수
+        var endTime= 20; // 4. 시간을 제한한다.
+
+
+        var successBalls = [];
+
+
+        var image = new Image();
+        image.src="jandi.png"; // 잔디
+        var backimage =new Image();
+        backimage.src = "background.png"; // 골대
+        var timer;
+
+        timerStart(); // 4. 시작시에 카운트다운
+        //공그리기
+        function drawBall(){
+            context.beginPath();
+            context.arc(ballX,ballY,ballRadius,0,2.0*Math.PI,true);
+            context.fillStyle="red";
+            context.fill();
+        }
+
+        //배경 그리기
+        function drawBackground(){
+            context.drawImage(image,0,270);
+            context.drawImage(backimage, Number(document.getElementById("goalx").value), Number(document.getElementById("goaly").value)); // 축구골대를 움직일수 있도록
+            context.drawImage(backimage, Number(document.getElementById("goal2x").value), Number(document.getElementById("goal2y").value)); // 축구골대를 움직일수 있도록
+        }
+
+        //전체화면 그리기
+        function draw(){
+            context.clearRect(0,0,500,300);
+            drawBall();
+            drawBackground();
+            drawBalls();
+        }
+
+        //초기화
+        function init(){
+            ballX=10;
+            ballY=250;
+            ballRadius=10;
+            context=document.getElementById('canvas').getContext('2d');
+            draw();
+        }
+
+        //발사
+        function start() {
+            // 3. 발사횟수 제한
+            if(limit > 0 && endTime > 0) {
+                // 4. 첫발사시에 카운트다운 시작
+                if(endTime == 60) {
+                    timerStart();
+                }
+
+//                drawBalls();
+                init();
+                velocity = Number(document.getElementById("velocity").value);
+                angle = Number(document.getElementById("angle").value);
+                var angleR=angle*Math.PI / 180;
+
+                ballVx=velocity*Math.cos(angleR);
+                ballVy = -velocity*Math.sin(angleR);
+
+                draw();
+                timer = setInterval(calculate, 100);
+
+                // 3.발사횟수 제한
+                limit--;
+                document.getElementById("limit").innerHTML = "발사 횟수 = " + limit;
+                return false;
+            } else {
+                alert("공이 다 떨어 졌다 재시작~! F5");
+            }
+        }
+
+        //공의 속도와 위치를 업데이트
+        function calculate() {
+            ballVy=ballVy+1.98;
+
+            ballX = ballX + ballVx;
+            ballY = ballY + ballVy;
+
+//공이 목표물에 맞으면
+            if((ballX >= Number(document.getElementById("goalx").value)) &&
+               (ballX <= (Number(document.getElementById("goalx").value)+30)) &&
+               (ballY >= Number(document.getElementById("goaly").value)) &&
+               (ballY <= (Number(document.getElementById("goaly").value)+150))){
+                score++;
+                document.getElementById("score").innerHTML = "점수=" + score;
+                document.getElementById("score1").innerHTML = "골대 점수 = " + score;
+                clearInterval(timer);
+                successBalls.push({ballX: ballX, ballY: ballY});
+            }
+
+            if((ballX >= Number(document.getElementById("goal2x").value)) &&
+                    (ballX <= (Number(document.getElementById("goal2x").value)+30)) &&
+                    (ballY >= Number(document.getElementById("goal2y").value)) &&
+                    (ballY <= (Number(document.getElementById("goal2y").value)+150))){
+                score++;
+                document.getElementById("score").innerHTML = "점수=" + score;
+                document.getElementById("score2").innerHTML = "골대1 점수 = " + score;
+                clearInterval(timer);
+                successBalls.push({ballX: ballX, ballY: ballY});
+            }
+
+//공이 경계를 벗어났으면
+            if(ballY >=300 || ballY<0){
+                clearInterval(timer);
+            }
+            draw();
+        }
+
+
+        // 4. 타이머 함수
+        function timerStart() {
+            var interval = setInterval(function(){
+
+                endTime = parseInt(endTime % 60, 10);//끝 시간 설정 및 시간 계산 60초
+                if(endTime == 0) endTime = 20;
+
+               --endTime;
+                  document.getElementById("timer").innerHTML = "남은 시간 : " + endTime + ' 초';
+	if(endTime == 0) {
+ document.getElementById("timer").innerHTML =alert("[타임오버] F5를 눌러 재시작 하세요.");;
+	}
+
+if (endTime < 0) {
+                    endTime = 0;
+                    clearInterval(interval);
+                }
+            }, 1000); //1초 지연 = sleep
+        }
+
+        // 5. 여러개의 공이 골대에 담긴다
+        function drawBalls() {
+            for(var i in successBalls) {
+                context.beginPath();
+                context.arc(successBalls[i]['ballX'],successBalls[i]['ballY'],ballRadius,0,2.0*Math.PI,true);
+                context.fillStyle="red";
+                context.fill();
+            }
+        }
+
+         /* setTimeout(function(){
+                //for(;;);//시간을 둬서 강제로 게임을 못하게 터트린다.
+                var a;
+                for(a=0;a<10;a++){
+                       alert("어머 10초나 게임 했어? 빨리 웹프 공부해!!!");
+                }
+                       },10000)
+*/
+    </script>
+</head>
+<body onload="init();">
+<canvas id="canvas" width="500" height="300"></canvas>
+<br/>
+<div>
+    골대 xpos<input id="goalx" value="450" type="number" min="0" max="500"/>
+    <!--x 좌표와 y 좌표의 최소값과 최댓값을 설정하여 무리수를 방지함.-->
+    골대 ypos<input id="goaly" value="80" type="number" min="0" max="300"/>
+<br/>
+
+    골대1 xpos<input id="goal2x" value="0" type="number" min="0" max="500"/>
+    골대1 ypos<input id="goal2y" value="80" type="number" min="0" max="300"/>
+</div>
+<br/>
+<br/>
+<div id="control">
+    속도<input id="velocity" value="35" type="number" min="0" max="100" step="1"/>
+    각도<input id="angle" value="45" type="number" min="0" max="90" step="1" />
+    <div id="limit">발사 횟수 = 10</div>
+    <div id="score">점수 = 0</div>
+    <div id="score1">골대 점수 = 0</div>
+    <div id="score2">골대1 점수 = 0</div>
+
+    <div id="timer">남은 시간 : 20 (편의상 20초로 기준 둠) 초</div>
+
+
+    <button onclick="start();" >발사</button>
+</div>
+</body>
+</html>
